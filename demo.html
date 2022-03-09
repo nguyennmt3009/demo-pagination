@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <pre id="json"></pre>
+    
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <div id="page-list">
+
+    </div>
+    <script>
+        var total = 0;
+        var currentPage = 1;
+        var initPageCount = 6;
+
+        function getData (offset, limit) {
+            return new Promise((resolve, reject) => {
+                let settings = {
+                    "url": "https://jsonplaceholder.typicode.com/todos",
+                    "method": "GET",
+                    "timeout": 0,
+                };
+
+                $.ajax(settings).done(function (response) {
+                    total = response.length;
+                    // pagination
+                    let start = limit * offset;
+                    let end = start + limit;
+
+                    let result = response.slice(start, end);
+
+                    resolve({
+                        "data": result,
+                        "total": response.length
+                    });
+                });
+                
+            });
+        }
+
+        async function reloadData (offset = 0, limit = 5) {
+            currentPage = offset + 1;
+            await getData(offset, limit)
+                .then(result => {
+                    document.getElementById("json").textContent = JSON.stringify(result.data, undefined, 2);
+                    createPaginationHTML(initPageCount);
+                });
+        }
+
+        function createPaginationHTML(pageCount) {
+            let start = 0;
+            let end = pageCount;
+
+            let halfPage = Math.round(pageCount / 2);
+
+            if (currentPage > halfPage) {
+                start = currentPage - halfPage;
+                end = start + pageCount;
+            }
+
+            const element = document.getElementById("page-list");
+
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+            for (let i = start < 0 ? 0 : start; i < end; i++) {
+                var tag = document.createElement("input");
+                tag.setAttribute("type", "button");
+                tag.setAttribute("value", i + 1);
+                tag.onclick = () => {
+                    reloadData(i);
+                };
+
+                if (currentPage == i + 1) {
+                    tag.disabled = true;
+                }
+
+                element.appendChild(tag);
+            }
+
+
+        }
+
+        $("document").ready(async () => {
+            await reloadData();
+            createPaginationHTML(initPageCount);
+        });
+
+
+    </script>
+</body>
+</html>
