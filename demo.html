@@ -8,7 +8,18 @@
 </head>
 <body>
     <input id="search-text" type="text" placeholder="search by title" onkeyup="search()"/>
-
+    <span>Sort</span>
+    <select name="sort" id="sort-value" onchange="sort()">
+        <option value="userId">User Id</option>
+        <option value="id">Id</option>
+        <option value="title">Title</option>
+        <option value="completed">Completed</option>
+    </select>
+    <select name="sortType" id="sort-type" onchange="sort()">
+        <option value="asc">Ascending</option>
+        <option value="des">Descending</option>
+    </select>
+    
     <pre id="json"></pre>
     <div id="page-list"></div>    
 

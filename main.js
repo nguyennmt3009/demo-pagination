@@ -4,9 +4,11 @@ var pageCount = 5;
 var offset = 0;
 var limit = 5;
 var searchBox = document.getElementById("search-text");
+var sortBox = document.getElementById("sort-value");
+var sortTypeBox = document.getElementById("sort-type");
 
 // Back end send data
-function getData (o, l, s) {
+function getData (o, l, s, so, st) {
     return new Promise((resolve, reject) => {
         let settings = {
             "url": "https://jsonplaceholder.typicode.com/todos",
@@ -17,6 +19,15 @@ function getData (o, l, s) {
         $.ajax(settings).done(function (response) {
             // searching
             response = response.filter((e) => e.title.includes(s));
+
+            // sort
+            response = response.sort((a, b) => {
+                if (st == "asc") {
+                    return a[so] == b[so] ? 0 : a[so] > b[so] ? 1 : -1;
+                } else {
+                    return a[so] == b[so] ? 0 : a[so] < b[so] ? 1 : -1;
+                }
+            })
             
             // pagination
             let start = l * o;
@@ -36,7 +47,7 @@ function getData (o, l, s) {
 async function reloadData (goToPage = offset) {
     offset = goToPage;
     currentPage = offset + 1;
-    await getData(offset, limit, searchBox.value)
+    await getData(offset, limit, searchBox.value, sortBox.value, sortTypeBox.value)
         .then(result => {
             document.getElementById("json").textContent = JSON.stringify(result.data, undefined, 2);
             total = result.total;
@@ -47,6 +58,10 @@ async function reloadData (goToPage = offset) {
 
 function search() {
     reloadData(0);
+}
+
+function sort() {
+    reloadData(0)
 }
 
 function createPaginationHTML() {
