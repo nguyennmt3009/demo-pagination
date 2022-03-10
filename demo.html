@@ -18,6 +18,7 @@
         var offset = 0;
         var limit = 5;
 
+        // Back end send data
         function getData () {
             return new Promise((resolve, reject) => {
                 let settings = {
@@ -27,7 +28,6 @@
                 };
 
                 $.ajax(settings).done(function (response) {
-                    total = response.length;
                     // pagination
                     let start = limit * offset;
                     let end = start + limit;
@@ -42,12 +42,15 @@
             });
         }
 
+        // Front end receive data
         async function reloadData (goToPage = offset) {
             offset = goToPage;
             currentPage = offset + 1;
             await getData()
                 .then(result => {
                     document.getElementById("json").textContent = JSON.stringify(result.data, undefined, 2);
+                    total = result.total;
+
                     createPaginationHTML();
                 });
         }
